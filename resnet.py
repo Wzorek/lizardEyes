@@ -2,7 +2,6 @@ import os
 import sys
 import numpy as np
 import tensorflow as tf
-import tensorflow_datasets as tfds
 import keras.models as M
 import datetime
 import keras.backend as K
@@ -10,7 +9,6 @@ import keras.utils as U
 import keras.applications as A
 import keras.engine.topology as L
 import matplotlib.pyplot as plt
-from pathlib import Path
 from PIL import Image
 from keras.models import Model
 from keras.layers import Dense, GlobalAveragePooling2D, Activation
@@ -25,9 +23,11 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.applications.imagenet_utils import decode_predictions
 from keras.optimizers import SGD
 
+print('AVAIABLE GPUs')
+tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(log_device_placement=True))
 print(K.tensorflow_backend._get_available_gpus())
 BATCH_SIZE = 32
-
+print('DONE')
 # Prepare data for network
 data_generator = ImageDataGenerator(preprocessing_function=preprocess_input, validation_split=0.3)
 train_data = data_generator.flow_from_directory(
@@ -68,14 +68,14 @@ my_model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accur
 # print(accuracy0)
 
 checkpoint = ModelCheckpoint('checkpoints\\' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
-                             monitor='val_acc',
+                             monitor='val_accuracy',
                              verbose=1,
                              mode='max',
                              save_best_only=True)
 
 log='logs\\resnet\\' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
-tensorboard_callback = TensorBoard(log_dir=log, histogram_freq=1)
+tensorboard_callback = TensorBoard(log_dir=log, histogram_freq=0)
 
 learning_process = my_model.fit_generator(train_data,
                                           epochs=100,
